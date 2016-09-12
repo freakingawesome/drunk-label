@@ -80,7 +80,7 @@ appendNextLetter typedKeys model =
       Random.step (Random.float 0 1) model.nextSeed
     (randChar, nextSeed') =
       Random.step
-        (Random.map (Maybe.withDefault 'X' << flip Array.get model.typoPool) (Random.int 0 <| Array.length model.typoPool))
+        (Random.map (Maybe.withDefault 'X' << flip Array.get model.typoPool) (Random.int 0 <| (Array.length model.typoPool) - 1))
         nextSeed
     filterTyped x =
       case x of
