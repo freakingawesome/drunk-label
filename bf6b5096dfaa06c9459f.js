@@ -31389,7 +31389,7 @@
 															_elm_lang$html$Html$pre,
 															_elm_lang$core$Native_List.fromArray(
 																[
-																	A2(_elm_lang$html$Html_Attributes$attribute, 'style', 'font-size: 20px')
+																	A2(_elm_lang$html$Html_Attributes$attribute, 'style', 'font-size: 20px; min-height: 500px;')
 																]),
 															_elm_lang$core$Native_List.fromArray(
 																[
