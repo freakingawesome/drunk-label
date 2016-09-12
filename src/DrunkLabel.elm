@@ -1,6 +1,7 @@
 module DrunkLabel exposing (
   Model,
   defaultModel,
+  defaultTypoPool,
   Msg
     ( SetValue
     , SetSobriety
@@ -17,7 +18,7 @@ module DrunkLabel exposing (
 {-| Mistyping as a service
 
 # Model
-@docs Model, defaultModel
+@docs Model, defaultModel, defaultTypoPool
 
 # Customization
 @docs Msg
@@ -35,6 +36,7 @@ import Random
 import List exposing (..)
 import List.Extra exposing (..)
 import DrunkTyper exposing (..)
+import Array exposing (Array)
 
 
 -- MODEL
@@ -58,7 +60,13 @@ defaultModel =
   , showCursor = True
   , cursorOn = False
   , cursorBlinkInterval = 500 * millisecond
+  , typoPool = defaultTypoPool
   }
+
+{-| Numbers and basic symbols -}
+defaultTypoPool : Array Char
+defaultTypoPool =
+  Array.fromList <| List.map Char.fromCode [48..122]
 
 {-| Wire `init` into the parent components initialization function. Takes a random seed -}
 init : Random.Seed -> (Model, Cmd Msg)
@@ -79,6 +87,7 @@ typist is to realize they made a mistake. It expects a value between 0 and 1.
 * `SetSpeed` changes the min and max delays between each key press.
 * `ShowCursor` changes whether the cursor is visible.
 * `SetCursorBlinkInterval` changes how fast the cursor blinks
+* `SetTypoPool` changes the pool of characters from which typos are pulled
 -}
 type Msg
   = SetValue String
@@ -87,6 +96,7 @@ type Msg
   | SetSpeed Time Time
   | ShowCursor Bool
   | SetCursorBlinkInterval Time
+  | SetTypoPool (Array Char)
   | ToggleCursor
   | NextKey
 
@@ -108,6 +118,9 @@ update msg model =
       { model | showCursor = show } ! []
     SetCursorBlinkInterval val ->
       { model | cursorBlinkInterval = val } ! []
+    SetTypoPool pool ->
+      let pool' = if Array.isEmpty pool then defaultTypoPool else pool
+      in { model | typoPool = pool', dir = Backward True } ! []
     NextKey ->
       let
         (nextText, dir, nextSeed) = drunkTyper model

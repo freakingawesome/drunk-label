@@ -6,6 +6,7 @@ import String
 import Random
 import List exposing (..)
 import List.Extra exposing (..)
+import Array exposing (Array)
 
 type TypedKey
   = Untyped Char
@@ -30,6 +31,7 @@ type alias Model =
   , showCursor : Bool
   , cursorOn : Bool
   , cursorBlinkInterval : Time
+  , typoPool : Array Char
   }
 
 
@@ -77,7 +79,9 @@ appendNextLetter typedKeys model =
     (accuracy, nextSeed) =
       Random.step (Random.float 0 1) model.nextSeed
     (randChar, nextSeed') =
-      Random.step (Random.map (Char.fromCode) (Random.int 48 122)) nextSeed
+      Random.step
+        (Random.map (Maybe.withDefault 'X' << flip Array.get model.typoPool) (Random.int 0 <| Array.length model.typoPool))
+        nextSeed
     filterTyped x =
       case x of
         Matched c -> Just c
