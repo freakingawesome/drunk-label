@@ -9,6 +9,7 @@ module DrunkLabel exposing (
     , SetSpeed
     , ShowCursor
     , SetCursorBlinkInterval
+    , SetTypoPool
     ),
   init,
   update,
