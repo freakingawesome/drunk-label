@@ -7612,7 +7612,7 @@
 
 	// inject bundled Elm app into div#main
 	var Elm = __webpack_require__( 86 );
-	Elm.Main.embed( document.getElementById( 'main' ) );
+	Elm.Main.embed( document.getElementById( 'main' ), { initialSeed: Date.now() } );
 
 
 /***/ },
@@ -30894,22 +30894,25 @@
 					]));
 		});
 	var _moarwick$elm_webpack_starter$Demo$init = function (seed) {
-		var defaultText = 'A quick brown fox jumps over the lazy dog';
+		var tagline = _freakingawesome$drunk_label$DrunkLabel$defaultModel;
 		var preview = _freakingawesome$drunk_label$DrunkLabel$defaultModel;
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
 			{
 				preview: _elm_lang$core$Native_Utils.update(
 					preview,
-					{value: defaultText}),
+					{value: 'A quick brown fox jumps over the lazy dog', nextSeed: seed}),
+				tagline: _elm_lang$core$Native_Utils.update(
+					tagline,
+					{value: 'Mistyping as a Service', sobriety: 0.85, brashness: 0.5, nextSeed: seed}),
 				showAdvanced: true
 			},
 			_elm_lang$core$Native_List.fromArray(
 				[]));
 	};
-	var _moarwick$elm_webpack_starter$Demo$Model = F2(
-		function (a, b) {
-			return {preview: a, showAdvanced: b};
+	var _moarwick$elm_webpack_starter$Demo$Model = F3(
+		function (a, b, c) {
+			return {preview: a, tagline: b, showAdvanced: c};
 		});
 	var _moarwick$elm_webpack_starter$Demo$ToggleShowAdvanced = {ctor: 'ToggleShowAdvanced'};
 	var _moarwick$elm_webpack_starter$Demo$SetCursorBlinkInterval = function (a) {
@@ -31104,6 +31107,10 @@
 						]))
 				]));
 	};
+	var _moarwick$elm_webpack_starter$Demo$ResetTagline = {ctor: 'ResetTagline'};
+	var _moarwick$elm_webpack_starter$Demo$TaglineMsg = function (a) {
+		return {ctor: 'TaglineMsg', _0: a};
+	};
 	var _moarwick$elm_webpack_starter$Demo$PreviewMsg = function (a) {
 		return {ctor: 'PreviewMsg', _0: a};
 	};
@@ -31142,6 +31149,26 @@
 								[
 									A2(_elm_lang$core$Platform_Cmd$map, _moarwick$elm_webpack_starter$Demo$PreviewMsg, cmd$)
 								]));
+					case 'TaglineMsg':
+						var _p3 = A2(_freakingawesome$drunk_label$DrunkLabel$update, _p1._0, model.tagline);
+						var tagline = _p3._0;
+						var cmd$ = _p3._1;
+						return A2(
+							_elm_lang$core$Platform_Cmd_ops['!'],
+							_elm_lang$core$Native_Utils.update(
+								model,
+								{tagline: tagline}),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									A2(_elm_lang$core$Platform_Cmd$map, _moarwick$elm_webpack_starter$Demo$TaglineMsg, cmd$)
+								]));
+					case 'ResetTagline':
+						var _v2 = _moarwick$elm_webpack_starter$Demo$TaglineMsg(
+							_freakingawesome$drunk_label$DrunkLabel$SetValue(model.tagline.value)),
+							_v3 = model;
+						msg = _v2;
+						model = _v3;
+						continue update;
 					case 'SetSobriety':
 						return A3(setPreviewFloat, _p1._0, model.preview.sobriety, _freakingawesome$drunk_label$DrunkLabel$SetSobriety);
 					case 'SetBrashness':
@@ -31159,12 +31186,12 @@
 							model.preview.maxWait,
 							_freakingawesome$drunk_label$DrunkLabel$SetSpeed(model.preview.minWait));
 					case 'ToggleShowCursor':
-						var _v2 = _moarwick$elm_webpack_starter$Demo$PreviewMsg(
+						var _v4 = _moarwick$elm_webpack_starter$Demo$PreviewMsg(
 							_freakingawesome$drunk_label$DrunkLabel$ShowCursor(
 								_elm_lang$core$Basics$not(model.preview.showCursor))),
-							_v3 = model;
-						msg = _v2;
-						model = _v3;
+							_v5 = model;
+						msg = _v4;
+						model = _v5;
 						continue update;
 					case 'SetCursorBlinkInterval':
 						return A3(setPreviewFloat, _p1._0, model.preview.cursorBlinkInterval, _freakingawesome$drunk_label$DrunkLabel$SetCursorBlinkInterval);
@@ -31182,10 +31209,22 @@
 			}
 		});
 	var _moarwick$elm_webpack_starter$Demo$subscriptions = function (model) {
-		return A2(
-			_elm_lang$core$Platform_Sub$map,
-			_moarwick$elm_webpack_starter$Demo$PreviewMsg,
-			_freakingawesome$drunk_label$DrunkLabel$subscriptions(model.preview));
+		return _elm_lang$core$Platform_Sub$batch(
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_elm_lang$core$Platform_Sub$map,
+					_moarwick$elm_webpack_starter$Demo$PreviewMsg,
+					_freakingawesome$drunk_label$DrunkLabel$subscriptions(model.preview)),
+					A2(
+					_elm_lang$core$Platform_Sub$map,
+					_moarwick$elm_webpack_starter$Demo$TaglineMsg,
+					_freakingawesome$drunk_label$DrunkLabel$subscriptions(model.tagline)),
+					A2(
+					_elm_lang$core$Time$every,
+					10 * _elm_lang$core$Time$second,
+					_elm_lang$core$Basics$always(_moarwick$elm_webpack_starter$Demo$ResetTagline))
+				]));
 	};
 	var _moarwick$elm_webpack_starter$Demo$view = function (model) {
 		return A2(
@@ -31223,7 +31262,11 @@
 												[]),
 											_elm_lang$core$Native_List.fromArray(
 												[
-													_elm_lang$html$Html$text(' - Mistyping as a Service')
+													_elm_lang$html$Html$text(' - '),
+													A2(
+													_elm_lang$html$Html_App$map,
+													_moarwick$elm_webpack_starter$Demo$PreviewMsg,
+													_freakingawesome$drunk_label$DrunkLabel$view(model.tagline))
 												]))
 										])),
 									A2(
@@ -31340,9 +31383,9 @@
 																	A2(_elm_lang$html$Html_Attributes$attribute, 'cols', '80'),
 																	A2(_elm_lang$html$Html_Attributes$attribute, 'id', 'input'),
 																	_elm_lang$html$Html_Events$onInput(
-																	function (_p3) {
+																	function (_p4) {
 																		return _moarwick$elm_webpack_starter$Demo$PreviewMsg(
-																			_freakingawesome$drunk_label$DrunkLabel$SetValue(_p3));
+																			_freakingawesome$drunk_label$DrunkLabel$SetValue(_p4));
 																	})
 																]),
 															_elm_lang$core$Native_List.fromArray(
@@ -31439,14 +31482,26 @@
 	};
 
 	var _moarwick$elm_webpack_starter$Main$main = {
-		main: _elm_lang$html$Html_App$program(
+		main: _elm_lang$html$Html_App$programWithFlags(
 			{
-				init: _moarwick$elm_webpack_starter$Demo$init(
-					_elm_lang$core$Random$initialSeed(0)),
+				init: function (flags) {
+					return _moarwick$elm_webpack_starter$Demo$init(
+						_elm_lang$core$Random$initialSeed(flags.initialSeed));
+				},
 				view: _moarwick$elm_webpack_starter$Demo$view,
 				update: _moarwick$elm_webpack_starter$Demo$update,
 				subscriptions: _moarwick$elm_webpack_starter$Demo$subscriptions
+			}),
+		flags: A2(
+			_elm_lang$core$Json_Decode$andThen,
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'initialSeed', _elm_lang$core$Json_Decode$int),
+			function (initialSeed) {
+				return _elm_lang$core$Json_Decode$succeed(
+					{initialSeed: initialSeed});
 			})
+	};
+	var _moarwick$elm_webpack_starter$Main$Flags = function (a) {
+		return {initialSeed: a};
 	};
 
 	var Elm = {};
