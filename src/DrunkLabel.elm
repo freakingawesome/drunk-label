@@ -168,13 +168,18 @@ view : Model -> Html Msg
 view model =
   let
     cursor =
-      if model.showCursor && model.cursorOn
-        then cursorCharacter
-        else ""
+      case (model.showCursor, model.cursorOn) of
+        (True, True) -> cursorChar
+        (True, False) -> nbspChar
+        _ -> ""
   in
     text <| model.inProcess ++ cursor
 
-cursorCharacter : String
-cursorCharacter =
-  String.fromList [ Char.fromCode 9608 ]
+cursorChar : String
+cursorChar =
+  String.fromChar <| Char.fromCode 9608
+
+nbspChar : String
+nbspChar =
+  String.fromChar <| Char.fromCode 160
 
