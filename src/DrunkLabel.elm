@@ -45,37 +45,43 @@ import Array exposing (Array)
 {-| Contains the state of this component -}
 type alias Model =
   { value : String
-  , inProcess : String
   , sobriety : Float
   , brashness : Float
-  , nextSeed : Random.Seed
-  , nextWait : Time
   , minWait : Time
   , maxWait : Time
-  , dir : Direction
   , showCursor : Bool
-  , cursorOn : Bool
   , cursorBlinkInterval : Time
   , typoPool : Array Char
+  , internal : InternalModel
   }
 
+{-| Contains the state we don't want exposed -}
+type InternalModel = InternalModel
+  { inProcess : String
+  , nextSeed : Random.Seed
+  , nextWait : Time
+  , dir : Direction
+  , cursorOn : Bool
+  }
 
 {-| Sensible teetotaling defaults -}
 defaultModel : Model
 defaultModel =
   { value = ""
-  , inProcess = ""
   , sobriety = 1
   , brashness = 0
-  , nextSeed = Random.initialSeed 0
-  , nextWait = 50 * millisecond
   , minWait = 30 * millisecond
   , maxWait = 200 * millisecond
-  , dir = Forward
   , showCursor = True
-  , cursorOn = False
   , cursorBlinkInterval = 500 * millisecond
   , typoPool = defaultTypoPool
+  , internal = InternalModel
+    { inProcess = ""
+    , nextSeed = Random.initialSeed 0
+    , nextWait = 50 * millisecond
+    , dir = Forward
+    , cursorOn = False
+    }
   }
 
 {-| Numbers and basic symbols -}
@@ -86,7 +92,10 @@ defaultTypoPool =
 {-| Wire `init` into the parent components initialization function. Takes a random seed -}
 init : Random.Seed -> (Model, Cmd Msg)
 init seed =
-  { defaultModel | nextSeed = seed } ! []
+  case defaultModel.internal of
+    InternalModel internal ->
+      let internal' = InternalModel { internal | nextSeed = seed }
+      in { defaultModel | internal = internal' } ! []
 
 
 -- UPDATE
@@ -120,37 +129,44 @@ type Msg
 {-| Wiring for the `update` function -}
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  case msg of
-    SetValue val ->
-      { model | value = val, dir = Backward True } ! []
-    SetSobriety val ->
-      { model | sobriety = val, dir = Backward True } ! []
-    SetBrashness val ->
-      { model | brashness = val, dir = Backward True } ! []
-    SetMinWait min ->
-      { model | minWait = min, maxWait = max min model.maxWait, dir = Backward True } ! []
-    SetMaxWait max ->
-      { model | minWait = min model.minWait max, maxWait = max, dir = Backward True } ! []
-    ToggleCursor ->
-      { model | cursorOn = model.showCursor && not model.cursorOn } ! []
-    ShowCursor show ->
-      { model | showCursor = show } ! []
-    SetCursorBlinkInterval val ->
-      { model | cursorBlinkInterval = val } ! []
-    SetTypoPool pool ->
-      let pool' = if Array.isEmpty pool then defaultTypoPool else pool
-      in { model | typoPool = pool', dir = Backward True } ! []
-    NextKey ->
-      let
-        (nextText, dir, nextSeed) = drunkTyper model
-        (nextWait, nextSeed') = Random.step (Random.float model.minWait model.maxWait) nextSeed
+  case model.internal of
+    InternalModel internal ->
+      let backThatThingUp = InternalModel { internal | dir = Backward True }
       in
-        { model
-          | inProcess = nextText
-          , nextSeed = nextSeed'
-          , nextWait = nextWait
-          , dir = dir
-        } ! []
+        case msg of
+          SetValue val ->
+            { model | value = val, internal = backThatThingUp } ! []
+          SetSobriety val ->
+            { model | sobriety = val, internal = backThatThingUp } ! []
+          SetBrashness val ->
+            { model | brashness = val, internal = backThatThingUp } ! []
+          SetMinWait min ->
+            { model | minWait = min, maxWait = max min model.maxWait, internal = backThatThingUp } ! []
+          SetMaxWait max ->
+            { model | minWait = min model.minWait max, maxWait = max, internal = backThatThingUp } ! []
+          ToggleCursor ->
+            let internal' = InternalModel { internal | cursorOn = model.showCursor && not internal.cursorOn }
+            in { model | internal = internal' } ! []
+          ShowCursor show ->
+            { model | showCursor = show } ! []
+          SetCursorBlinkInterval val ->
+            { model | cursorBlinkInterval = val } ! []
+          SetTypoPool pool ->
+            let pool' = if Array.isEmpty pool then defaultTypoPool else pool
+            in { model | typoPool = pool', internal = backThatThingUp } ! []
+          NextKey ->
+            let
+              (nextText, dir, nextSeed) = drunkTyper model
+              (nextWait, nextSeed') = Random.step (Random.float model.minWait model.maxWait) nextSeed
+              internal' = InternalModel
+                { internal
+                  | inProcess = nextText
+                  , nextSeed = nextSeed'
+                  , nextWait = nextWait
+                  , dir = dir
+                }
+            in
+              { model | internal = internal' } ! []
 
 
 -- SUBSCRIPTIONS
@@ -158,20 +174,22 @@ update msg model =
 {-| Wiring for the `subscriptions` function -}
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  let
-    typing =
-      case model.dir of
-        Backward True -> Time.every (min model.maxWait <| 50 * millisecond) (always NextKey)
-        _ ->
-          if model.value == model.inProcess
-            then Sub.none
-            else Time.every model.nextWait (always NextKey)
-    cursorBlinking =
-      if model.showCursor
-        then Time.every model.cursorBlinkInterval (always ToggleCursor)
-        else Sub.none
-  in
-    Sub.batch [ typing, cursorBlinking ]
+  case model.internal of
+    InternalModel internal ->
+      let
+        typing =
+          case internal.dir of
+            Backward True -> Time.every (min model.maxWait <| 50 * millisecond) (always NextKey)
+            _ ->
+              if model.value == internal.inProcess
+                then Sub.none
+                else Time.every internal.nextWait (always NextKey)
+        cursorBlinking =
+          if model.showCursor
+            then Time.every model.cursorBlinkInterval (always ToggleCursor)
+            else Sub.none
+      in
+        Sub.batch [ typing, cursorBlinking ]
 
 
 -- VIEW
@@ -179,14 +197,16 @@ subscriptions model =
 {-| Wiring for the `view` function -}
 view : Model -> Html Msg
 view model =
-  let
-    cursor =
-      case (model.showCursor, model.cursorOn) of
-        (True, True) -> cursorChar
-        (True, False) -> nbspChar
-        _ -> ""
-  in
-    text <| model.inProcess ++ cursor
+  case model.internal of
+    InternalModel internal ->
+      let
+        cursor =
+          case (model.showCursor, internal.cursorOn) of
+            (True, True) -> cursorChar
+            (True, False) -> nbspChar
+            _ -> ""
+      in
+        text <| internal.inProcess ++ cursor
 
 cursorChar : String
 cursorChar =
@@ -217,72 +237,76 @@ type FullZipItem a b
 
 drunkTyper : Model -> (String, Direction, Random.Seed)
 drunkTyper model =
-  let
-    typedKeys = toTypedKeys model.value model.inProcess
-    numWrong =
-      length
-        <| filter (\x ->
-          case x of
-            Wrong _ _ -> True
-            _ -> False
-          ) typedKeys
-    (drunked, nextSeed') =
-      case model.dir of
-        Forward ->
-          appendNextLetter typedKeys model
-        Backward False ->
-          Maybe.withDefault [] (List.Extra.init (String.toList model.inProcess))
-            |> String.fromList
-            |> flip (,) model.nextSeed
-        Backward True ->
-          (String.slice 0 -2 model.inProcess, model.nextSeed)
-    (dir, nextSeed'') =
-        case model.dir of
-          Forward ->
-            if numWrong == 0
-              then (Forward, nextSeed')
-              else Random.step (Random.map (\f -> if f > model.brashness then Backward False else Forward) (Random.float 0 1)) nextSeed'
-          Backward False ->
-            if numWrong == 0
-              then (Forward, nextSeed')
-              else (Backward False, nextSeed')
-          Backward True ->
-            if String.length model.inProcess == 0
-              then (Forward, nextSeed')
-              else (Backward True, nextSeed')
-  in
-    (drunked, dir, nextSeed'')
+  case model.internal of
+    InternalModel internal ->
+      let
+        typedKeys = toTypedKeys model.value internal.inProcess
+        numWrong =
+          length
+            <| filter (\x ->
+              case x of
+                Wrong _ _ -> True
+                _ -> False
+              ) typedKeys
+        (drunked, nextSeed') =
+          case internal.dir of
+            Forward ->
+              appendNextLetter typedKeys model
+            Backward False ->
+              Maybe.withDefault [] (List.Extra.init (String.toList internal.inProcess))
+                |> String.fromList
+                |> flip (,) internal.nextSeed
+            Backward True ->
+              (String.slice 0 -2 internal.inProcess, internal.nextSeed)
+        (dir, nextSeed'') =
+            case internal.dir of
+              Forward ->
+                if numWrong == 0
+                  then (Forward, nextSeed')
+                  else Random.step (Random.map (\f -> if f > model.brashness then Backward False else Forward) (Random.float 0 1)) nextSeed'
+              Backward False ->
+                if numWrong == 0
+                  then (Forward, nextSeed')
+                  else (Backward False, nextSeed')
+              Backward True ->
+                if String.length internal.inProcess == 0
+                  then (Forward, nextSeed')
+                  else (Backward True, nextSeed')
+      in
+        (drunked, dir, nextSeed'')
 
 appendNextLetter : List TypedKey -> Model -> (String, Random.Seed)
 appendNextLetter typedKeys model =
-  let
-    (accuracy, nextSeed) =
-      Random.step (Random.float 0 1) model.nextSeed
-    (randChar, nextSeed') =
-      Random.step
-        (Random.map (Maybe.withDefault 'X' << flip Array.get model.typoPool) (Random.int 0 <| (Array.length model.typoPool) - 1))
-        nextSeed
-    filterTyped x =
-      case x of
-        Matched c -> Just c
-        Wrong _ c -> Just c
-        _ -> Nothing
-    skipTyped =
-      filter (\x ->
-        case x of
-          Untyped c -> True
-          _ -> False)
-    nextLetter =
-      case head <| skipTyped typedKeys of
-        Just (Untyped c) ->
-          if accuracy > model.sobriety
-            then [randChar]
-            else [c]
-        _ -> []
-  in
-    filterMap filterTyped typedKeys ++ nextLetter
-      |> String.fromList
-      |> flip (,) nextSeed
+  case model.internal of
+    InternalModel internal ->
+      let
+        (accuracy, nextSeed) =
+          Random.step (Random.float 0 1) internal.nextSeed
+        (randChar, nextSeed') =
+          Random.step
+            (Random.map (Maybe.withDefault 'X' << flip Array.get model.typoPool) (Random.int 0 <| (Array.length model.typoPool) - 1))
+            nextSeed
+        filterTyped x =
+          case x of
+            Matched c -> Just c
+            Wrong _ c -> Just c
+            _ -> Nothing
+        skipTyped =
+          filter (\x ->
+            case x of
+              Untyped c -> True
+              _ -> False)
+        nextLetter =
+          case head <| skipTyped typedKeys of
+            Just (Untyped c) ->
+              if accuracy > model.sobriety
+                then [randChar]
+                else [c]
+            _ -> []
+      in
+        filterMap filterTyped typedKeys ++ nextLetter
+          |> String.fromList
+          |> flip (,) nextSeed
 
 toTypedKeys : String -> String -> List TypedKey
 toTypedKeys expected current =
