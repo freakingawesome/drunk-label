@@ -6,7 +6,8 @@ module DrunkLabel exposing (
     ( SetValue
     , SetSobriety
     , SetBrashness
-    , SetSpeed
+    , SetMinWait
+    , SetMaxWait
     , ShowCursor
     , SetCursorBlinkInterval
     , SetTypoPool
@@ -85,7 +86,8 @@ Most of these messages will cause the typist to backspace all the way to the beg
 * `SetSobriety` changes the accuracy percentage. It expects a value between 0 and 1.
 * `SetBrashness` changes the confidence level of the typist. The higher the value, the less likely the
 typist is to realize they made a mistake. It expects a value between 0 and 1.
-* `SetSpeed` changes the min and max delays between each key press.
+* `SetMinWait` changes the mininum delay between each key press.
+* `SetMaxWait` changes the maximum delay between each key press.
 * `ShowCursor` changes whether the cursor is visible.
 * `SetCursorBlinkInterval` changes how fast the cursor blinks
 * `SetTypoPool` changes the pool of characters from which typos are pulled
@@ -94,7 +96,8 @@ type Msg
   = SetValue String
   | SetSobriety Float
   | SetBrashness Float
-  | SetSpeed Time Time
+  | SetMinWait Time
+  | SetMaxWait Time
   | ShowCursor Bool
   | SetCursorBlinkInterval Time
   | SetTypoPool (Array Char)
@@ -111,8 +114,10 @@ update msg model =
       { model | sobriety = val, dir = Backward True } ! []
     SetBrashness val ->
       { model | brashness = val, dir = Backward True } ! []
-    SetSpeed min max ->
-      { model | minWait = min, maxWait = max, dir = Backward True } ! []
+    SetMinWait min ->
+      { model | minWait = min, maxWait = max min model.maxWait, dir = Backward True } ! []
+    SetMaxWait max ->
+      { model | minWait = min model.minWait max, maxWait = max, dir = Backward True } ! []
     ToggleCursor ->
       { model | cursorOn = model.showCursor && not model.cursorOn } ! []
     ShowCursor show ->
