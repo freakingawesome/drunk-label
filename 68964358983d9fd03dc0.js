@@ -32471,7 +32471,7 @@
 					_elm_lang$html$Html$text('ms)')
 				]));
 	};
-	var _moarwick$elm_webpack_starter$Demo$defaultTagline = 'A quick brown fox jumps over the lazy dog';
+	var _moarwick$elm_webpack_starter$Demo$defaultTagline = 'Mistyping as a Service';
 	var _moarwick$elm_webpack_starter$Demo$Model = function (a) {
 		return function (b) {
 			return function (c) {
@@ -32702,14 +32702,14 @@
 		var flags = _freakingawesome$drunk_label$DrunkLabel$defaultFlags;
 		var previewSettings = _elm_lang$core$Native_Utils.update(
 			flags,
-			{initialSeed: seed, value: _moarwick$elm_webpack_starter$Demo$defaultTagline});
+			{initialSeed: seed, value: 'A quick brown fox jumps over the lazy dog'});
 		var _p1 = _freakingawesome$drunk_label$DrunkLabel$init(previewSettings);
 		var preview = _p1._0;
 		var previewCmd = _p1._1;
 		var _p2 = _freakingawesome$drunk_label$DrunkLabel$init(
 			_elm_lang$core$Native_Utils.update(
 				flags,
-				{initialSeed: seed + 1, value: 'Mistyping as a Service', sobriety: 0.85, brashness: 0.5}));
+				{initialSeed: seed + 1, value: _moarwick$elm_webpack_starter$Demo$defaultTagline, sobriety: 0.85, brashness: 0.5}));
 		var tagline = _p2._0;
 		var taglineCmd = _p2._1;
 		return A2(
