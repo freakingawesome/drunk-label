@@ -30401,57 +30401,56 @@
 
 	var _freakingawesome$drunk_label$DrunkLabel$appendNextLetter = F2(
 		function (typedKeys, model) {
-			var _p0 = model.internal;
 			var skipTyped = _elm_lang$core$List$filter(
 				function (x) {
-					var _p1 = x;
-					if (_p1.ctor === 'Untyped') {
+					var _p0 = x;
+					if (_p0.ctor === 'Untyped') {
 						return true;
 					} else {
 						return false;
 					}
 				});
 			var filterTyped = function (x) {
-				var _p2 = x;
-				switch (_p2.ctor) {
+				var _p1 = x;
+				switch (_p1.ctor) {
 					case 'Matched':
-						return _elm_lang$core$Maybe$Just(_p2._0);
+						return _elm_lang$core$Maybe$Just(_p1._0);
 					case 'Wrong':
-						return _elm_lang$core$Maybe$Just(_p2._1);
+						return _elm_lang$core$Maybe$Just(_p1._1);
 					default:
 						return _elm_lang$core$Maybe$Nothing;
 				}
 			};
-			var _p3 = A2(
+			var _p2 = A2(
 				_elm_lang$core$Random$step,
 				A2(_elm_lang$core$Random$float, 0, 1),
-				_p0._0.nextSeed);
-			var accuracy = _p3._0;
-			var nextSeed = _p3._1;
-			var _p4 = A2(
+				model.nextSeed);
+			var accuracy = _p2._0;
+			var nextSeed = _p2._1;
+			var _p3 = A2(
 				_elm_lang$core$Random$step,
 				A2(
 					_elm_lang$core$Random$map,
-					function (_p5) {
+					function (_p4) {
 						return A2(
 							_elm_lang$core$Maybe$withDefault,
 							_elm_lang$core$Native_Utils.chr('X'),
-							A3(_elm_lang$core$Basics$flip, _elm_lang$core$Array$get, model.typoPool, _p5));
+							A3(_elm_lang$core$Basics$flip, _elm_lang$core$Array$get, model.typoPool, _p4));
 					},
 					A2(
 						_elm_lang$core$Random$int,
 						0,
 						_elm_lang$core$Array$length(model.typoPool) - 1)),
 				nextSeed);
-			var randChar = _p4._0;
-			var nextSeed$ = _p4._1;
+			var randChar = _p3._0;
+			var nextSeed$ = _p3._1;
 			var nextLetter = function () {
-				var _p6 = _elm_lang$core$List$head(
+				var _p5 = _elm_lang$core$List$head(
 					skipTyped(typedKeys));
-				if ((_p6.ctor === 'Just') && (_p6._0.ctor === 'Untyped')) {
+				if ((_p5.ctor === 'Just') && (_p5._0.ctor === 'Untyped')) {
 					return (_elm_lang$core$Native_Utils.cmp(accuracy, model.sobriety) > 0) ? _elm_lang$core$Native_List.fromArray(
 						[randChar]) : _elm_lang$core$Native_List.fromArray(
-						[_p6._0._0]);
+						[_p5._0._0]);
 				} else {
 					return _elm_lang$core$Native_List.fromArray(
 						[]);
@@ -30474,13 +30473,13 @@
 		_elm_lang$core$Char$fromCode(160));
 	var _freakingawesome$drunk_label$DrunkLabel$cursorChar = _elm_lang$core$String$fromChar(
 		_elm_lang$core$Char$fromCode(9608));
-	var _freakingawesome$drunk_label$DrunkLabel$view = function (model) {
-		var _p7 = model.internal;
-		var _p9 = _p7._0;
+	var _freakingawesome$drunk_label$DrunkLabel$view = function (model$) {
+		var _p6 = model$;
+		var _p8 = _p6._0;
 		var cursor = function () {
-			var _p8 = {ctor: '_Tuple2', _0: model.showCursor, _1: _p9.cursorOn};
-			if ((_p8.ctor === '_Tuple2') && (_p8._0 === true)) {
-				if (_p8._1 === true) {
+			var _p7 = {ctor: '_Tuple2', _0: _p8.showCursor, _1: _p8.cursorOn};
+			if ((_p7.ctor === '_Tuple2') && (_p7._0 === true)) {
+				if (_p7._1 === true) {
 					return _freakingawesome$drunk_label$DrunkLabel$cursorChar;
 				} else {
 					return _freakingawesome$drunk_label$DrunkLabel$nbspChar;
@@ -30490,40 +30489,79 @@
 			}
 		}();
 		return _elm_lang$html$Html$text(
-			A2(_elm_lang$core$Basics_ops['++'], _p9.inProcess, cursor));
+			A2(_elm_lang$core$Basics_ops['++'], _p8.inProcess, cursor));
 	};
 	var _freakingawesome$drunk_label$DrunkLabel$defaultTypoPool = _elm_lang$core$Array$fromList(
 		A2(
 			_elm_lang$core$List$map,
 			_elm_lang$core$Char$fromCode,
 			_elm_lang$core$Native_List.range(48, 122)));
-	var _freakingawesome$drunk_label$DrunkLabel$Model = F9(
-		function (a, b, c, d, e, f, g, h, i) {
-			return {value: a, sobriety: b, brashness: c, minWait: d, maxWait: e, showCursor: f, cursorBlinkInterval: g, typoPool: h, internal: i};
-		});
+	var _freakingawesome$drunk_label$DrunkLabel$defaultFlags = {
+		value: '',
+		sobriety: 1,
+		brashness: 0,
+		minWait: 30 * _elm_lang$core$Time$millisecond,
+		maxWait: 200 * _elm_lang$core$Time$millisecond,
+		showCursor: true,
+		cursorBlinkInterval: 500 * _elm_lang$core$Time$millisecond,
+		typoPool: _elm_lang$core$String$fromList(
+			_elm_lang$core$Array$toList(_freakingawesome$drunk_label$DrunkLabel$defaultTypoPool)),
+		initialSeed: 0
+	};
 	var _freakingawesome$drunk_label$DrunkLabel$InternalModel = function (a) {
-		return {ctor: 'InternalModel', _0: a};
+		return function (b) {
+			return function (c) {
+				return function (d) {
+					return function (e) {
+						return function (f) {
+							return function (g) {
+								return function (h) {
+									return function (i) {
+										return function (j) {
+											return function (k) {
+												return function (l) {
+													return function (m) {
+														return {value: a, sobriety: b, brashness: c, minWait: d, maxWait: e, showCursor: f, cursorBlinkInterval: g, typoPool: h, inProcess: i, nextSeed: j, nextWait: k, dir: l, cursorOn: m};
+													};
+												};
+											};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+	var _freakingawesome$drunk_label$DrunkLabel$Flags = F9(
+		function (a, b, c, d, e, f, g, h, i) {
+			return {value: a, sobriety: b, brashness: c, minWait: d, maxWait: e, showCursor: f, cursorBlinkInterval: g, typoPool: h, initialSeed: i};
+		});
+	var _freakingawesome$drunk_label$DrunkLabel$Model = function (a) {
+		return {ctor: 'Model', _0: a};
 	};
 	var _freakingawesome$drunk_label$DrunkLabel$NextKey = {ctor: 'NextKey'};
 	var _freakingawesome$drunk_label$DrunkLabel$ToggleCursor = {ctor: 'ToggleCursor'};
-	var _freakingawesome$drunk_label$DrunkLabel$subscriptions = function (model) {
-		var _p10 = model.internal;
-		var _p12 = _p10._0;
-		var cursorBlinking = model.showCursor ? A2(
+	var _freakingawesome$drunk_label$DrunkLabel$subscriptions = function (model$) {
+		var _p9 = model$;
+		var _p11 = _p9._0;
+		var cursorBlinking = _p11.showCursor ? A2(
 			_elm_lang$core$Time$every,
-			model.cursorBlinkInterval,
+			_p11.cursorBlinkInterval,
 			_elm_lang$core$Basics$always(_freakingawesome$drunk_label$DrunkLabel$ToggleCursor)) : _elm_lang$core$Platform_Sub$none;
 		var typing = function () {
-			var _p11 = _p12.dir;
-			if ((_p11.ctor === 'Backward') && (_p11._0 === true)) {
+			var _p10 = _p11.dir;
+			if ((_p10.ctor === 'Backward') && (_p10._0 === true)) {
 				return A2(
 					_elm_lang$core$Time$every,
-					A2(_elm_lang$core$Basics$min, model.maxWait, 50 * _elm_lang$core$Time$millisecond),
+					A2(_elm_lang$core$Basics$min, _p11.maxWait, 50 * _elm_lang$core$Time$millisecond),
 					_elm_lang$core$Basics$always(_freakingawesome$drunk_label$DrunkLabel$NextKey));
 			} else {
-				return _elm_lang$core$Native_Utils.eq(model.value, _p12.inProcess) ? _elm_lang$core$Platform_Sub$none : A2(
+				return _elm_lang$core$Native_Utils.eq(_p11.value, _p11.inProcess) ? _elm_lang$core$Platform_Sub$none : A2(
 					_elm_lang$core$Time$every,
-					_p12.nextWait,
+					_p11.nextWait,
 					_elm_lang$core$Basics$always(_freakingawesome$drunk_label$DrunkLabel$NextKey));
 			}
 		}();
@@ -30572,35 +30610,36 @@
 		return {ctor: 'Backward', _0: a};
 	};
 	var _freakingawesome$drunk_label$DrunkLabel$Forward = {ctor: 'Forward'};
-	var _freakingawesome$drunk_label$DrunkLabel$defaultModel = {
-		value: '',
-		sobriety: 1,
-		brashness: 0,
-		minWait: 30 * _elm_lang$core$Time$millisecond,
-		maxWait: 200 * _elm_lang$core$Time$millisecond,
-		showCursor: true,
-		cursorBlinkInterval: 500 * _elm_lang$core$Time$millisecond,
-		typoPool: _freakingawesome$drunk_label$DrunkLabel$defaultTypoPool,
-		internal: _freakingawesome$drunk_label$DrunkLabel$InternalModel(
-			{
-				inProcess: '',
-				nextSeed: _elm_lang$core$Random$initialSeed(0),
-				nextWait: 50 * _elm_lang$core$Time$millisecond,
-				dir: _freakingawesome$drunk_label$DrunkLabel$Forward,
-				cursorOn: false
-			})
-	};
-	var _freakingawesome$drunk_label$DrunkLabel$init = function (seed) {
-		var _p13 = _freakingawesome$drunk_label$DrunkLabel$defaultModel.internal;
-		var internal$ = _freakingawesome$drunk_label$DrunkLabel$InternalModel(
-			_elm_lang$core$Native_Utils.update(
-				_p13._0,
-				{nextSeed: seed}));
+	var _freakingawesome$drunk_label$DrunkLabel$init = function (flags) {
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
-			_elm_lang$core$Native_Utils.update(
-				_freakingawesome$drunk_label$DrunkLabel$defaultModel,
-				{internal: internal$}),
+			_freakingawesome$drunk_label$DrunkLabel$Model(
+				{
+					value: flags.value,
+					sobriety: A3(_elm_lang$core$Basics$clamp, 0, 1, flags.sobriety),
+					brashness: A3(_elm_lang$core$Basics$clamp, 0, 1, flags.brashness),
+					minWait: A2(_elm_lang$core$Basics$max, 0, flags.minWait),
+					maxWait: A2(
+						_elm_lang$core$Basics$max,
+						flags.minWait,
+						A2(_elm_lang$core$Basics$max, 0, flags.maxWait)),
+					showCursor: flags.showCursor,
+					cursorBlinkInterval: A2(_elm_lang$core$Basics$max, 0, flags.cursorBlinkInterval),
+					typoPool: function () {
+						var _p12 = flags.typoPool;
+						if (_p12 === '') {
+							return _freakingawesome$drunk_label$DrunkLabel$defaultTypoPool;
+						} else {
+							return _elm_lang$core$Array$fromList(
+								_elm_lang$core$String$toList(flags.typoPool));
+						}
+					}(),
+					nextSeed: _elm_lang$core$Random$initialSeed(flags.initialSeed),
+					inProcess: '',
+					nextWait: 50 * _elm_lang$core$Time$millisecond,
+					dir: _freakingawesome$drunk_label$DrunkLabel$Forward,
+					cursorOn: false
+				}),
 			_elm_lang$core$Native_List.fromArray(
 				[]));
 	};
@@ -30616,52 +30655,52 @@
 	};
 	var _freakingawesome$drunk_label$DrunkLabel$zipAll = F2(
 		function (a, b) {
-			var _p14 = {ctor: '_Tuple2', _0: a, _1: b};
-			if (_p14._0.ctor === '[]') {
-				if (_p14._1.ctor === '[]') {
+			var _p13 = {ctor: '_Tuple2', _0: a, _1: b};
+			if (_p13._0.ctor === '[]') {
+				if (_p13._1.ctor === '[]') {
 					return _elm_lang$core$Native_List.fromArray(
 						[]);
 				} else {
 					return A2(
 						_elm_lang$core$List_ops['::'],
-						_freakingawesome$drunk_label$DrunkLabel$Second(_p14._1._0),
+						_freakingawesome$drunk_label$DrunkLabel$Second(_p13._1._0),
 						A2(
 							_freakingawesome$drunk_label$DrunkLabel$zipAll,
 							_elm_lang$core$Native_List.fromArray(
 								[]),
-							_p14._1._1));
+							_p13._1._1));
 				}
 			} else {
-				if (_p14._1.ctor === '[]') {
+				if (_p13._1.ctor === '[]') {
 					return A2(
 						_elm_lang$core$List_ops['::'],
-						_freakingawesome$drunk_label$DrunkLabel$First(_p14._0._0),
+						_freakingawesome$drunk_label$DrunkLabel$First(_p13._0._0),
 						A2(
 							_freakingawesome$drunk_label$DrunkLabel$zipAll,
-							_p14._0._1,
+							_p13._0._1,
 							_elm_lang$core$Native_List.fromArray(
 								[])));
 				} else {
 					return A2(
 						_elm_lang$core$List_ops['::'],
-						A2(_freakingawesome$drunk_label$DrunkLabel$Both, _p14._0._0, _p14._1._0),
-						A2(_freakingawesome$drunk_label$DrunkLabel$zipAll, _p14._0._1, _p14._1._1));
+						A2(_freakingawesome$drunk_label$DrunkLabel$Both, _p13._0._0, _p13._1._0),
+						A2(_freakingawesome$drunk_label$DrunkLabel$zipAll, _p13._0._1, _p13._1._1));
 				}
 			}
 		});
 	var _freakingawesome$drunk_label$DrunkLabel$toTypedKeys = F2(
 		function (expected, current) {
 			var typedKey = function (entry) {
-				var _p15 = entry;
-				switch (_p15.ctor) {
+				var _p14 = entry;
+				switch (_p14.ctor) {
 					case 'First':
-						return _freakingawesome$drunk_label$DrunkLabel$Untyped(_p15._0);
+						return _freakingawesome$drunk_label$DrunkLabel$Untyped(_p14._0);
 					case 'Second':
-						return _freakingawesome$drunk_label$DrunkLabel$Excess(_p15._0);
+						return _freakingawesome$drunk_label$DrunkLabel$Excess(_p14._0);
 					default:
-						var _p17 = _p15._0;
-						var _p16 = _p15._1;
-						return _elm_lang$core$Native_Utils.eq(_p17, _p16) ? _freakingawesome$drunk_label$DrunkLabel$Matched(_p17) : A2(_freakingawesome$drunk_label$DrunkLabel$Wrong, _p17, _p16);
+						var _p16 = _p14._0;
+						var _p15 = _p14._1;
+						return _elm_lang$core$Native_Utils.eq(_p16, _p15) ? _freakingawesome$drunk_label$DrunkLabel$Matched(_p16) : A2(_freakingawesome$drunk_label$DrunkLabel$Wrong, _p16, _p15);
 				}
 			};
 			return A2(
@@ -30673,55 +30712,53 @@
 					_elm_lang$core$String$toList(current)));
 		});
 	var _freakingawesome$drunk_label$DrunkLabel$drunkTyper = function (model) {
-		var _p18 = model.internal;
-		var _p24 = _p18._0;
-		var typedKeys = A2(_freakingawesome$drunk_label$DrunkLabel$toTypedKeys, model.value, _p24.inProcess);
+		var typedKeys = A2(_freakingawesome$drunk_label$DrunkLabel$toTypedKeys, model.value, model.inProcess);
 		var numWrong = _elm_lang$core$List$length(
 			A2(
 				_elm_lang$core$List$filter,
 				function (x) {
-					var _p19 = x;
-					if (_p19.ctor === 'Wrong') {
+					var _p17 = x;
+					if (_p17.ctor === 'Wrong') {
 						return true;
 					} else {
 						return false;
 					}
 				},
 				typedKeys));
-		var _p20 = function () {
-			var _p21 = _p24.dir;
-			if (_p21.ctor === 'Forward') {
+		var _p18 = function () {
+			var _p19 = model.dir;
+			if (_p19.ctor === 'Forward') {
 				return A2(_freakingawesome$drunk_label$DrunkLabel$appendNextLetter, typedKeys, model);
 			} else {
-				if (_p21._0 === false) {
+				if (_p19._0 === false) {
 					return A3(
 						_elm_lang$core$Basics$flip,
 						F2(
 							function (v0, v1) {
 								return {ctor: '_Tuple2', _0: v0, _1: v1};
 							}),
-						_p24.nextSeed,
+						model.nextSeed,
 						_elm_lang$core$String$fromList(
 							A2(
 								_elm_lang$core$Maybe$withDefault,
 								_elm_lang$core$Native_List.fromArray(
 									[]),
 								_elm_community$list_extra$List_Extra$init(
-									_elm_lang$core$String$toList(_p24.inProcess)))));
+									_elm_lang$core$String$toList(model.inProcess)))));
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: A3(_elm_lang$core$String$slice, 0, -2, _p24.inProcess),
-						_1: _p24.nextSeed
+						_0: A3(_elm_lang$core$String$slice, 0, -2, model.inProcess),
+						_1: model.nextSeed
 					};
 				}
 			}
 		}();
-		var drunked = _p20._0;
-		var nextSeed$ = _p20._1;
-		var _p22 = function () {
-			var _p23 = _p24.dir;
-			if (_p23.ctor === 'Forward') {
+		var drunked = _p18._0;
+		var nextSeed$ = _p18._1;
+		var _p20 = function () {
+			var _p21 = model.dir;
+			if (_p21.ctor === 'Forward') {
 				return _elm_lang$core$Native_Utils.eq(numWrong, 0) ? {ctor: '_Tuple2', _0: _freakingawesome$drunk_label$DrunkLabel$Forward, _1: nextSeed$} : A2(
 					_elm_lang$core$Random$step,
 					A2(
@@ -30732,7 +30769,7 @@
 						A2(_elm_lang$core$Random$float, 0, 1)),
 					nextSeed$);
 			} else {
-				if (_p23._0 === false) {
+				if (_p21._0 === false) {
 					return _elm_lang$core$Native_Utils.eq(numWrong, 0) ? {ctor: '_Tuple2', _0: _freakingawesome$drunk_label$DrunkLabel$Forward, _1: nextSeed$} : {
 						ctor: '_Tuple2',
 						_0: _freakingawesome$drunk_label$DrunkLabel$Backward(false),
@@ -30740,7 +30777,7 @@
 					};
 				} else {
 					return _elm_lang$core$Native_Utils.eq(
-						_elm_lang$core$String$length(_p24.inProcess),
+						_elm_lang$core$String$length(model.inProcess),
 						0) ? {ctor: '_Tuple2', _0: _freakingawesome$drunk_label$DrunkLabel$Forward, _1: nextSeed$} : {
 						ctor: '_Tuple2',
 						_0: _freakingawesome$drunk_label$DrunkLabel$Backward(true),
@@ -30749,136 +30786,195 @@
 				}
 			}
 		}();
-		var dir = _p22._0;
-		var nextSeed$$ = _p22._1;
+		var dir = _p20._0;
+		var nextSeed$$ = _p20._1;
 		return {ctor: '_Tuple3', _0: drunked, _1: dir, _2: nextSeed$$};
 	};
 	var _freakingawesome$drunk_label$DrunkLabel$update = F2(
-		function (msg, model) {
-			var _p25 = model.internal;
-			var _p32 = _p25._0;
-			var backThatThingUp = _freakingawesome$drunk_label$DrunkLabel$InternalModel(
-				_elm_lang$core$Native_Utils.update(
-					_p32,
-					{
-						dir: _freakingawesome$drunk_label$DrunkLabel$Backward(true)
-					}));
-			var _p26 = msg;
-			switch (_p26.ctor) {
+		function (msg, model$) {
+			var _p22 = model$;
+			var _p29 = _p22._0;
+			var _p23 = msg;
+			switch (_p23.ctor) {
 				case 'SetValue':
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{value: _p26._0, internal: backThatThingUp}),
+						_freakingawesome$drunk_label$DrunkLabel$Model(
+							_elm_lang$core$Native_Utils.update(
+								_p29,
+								{
+									value: _p23._0,
+									dir: _freakingawesome$drunk_label$DrunkLabel$Backward(true)
+								})),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
 				case 'SetSobriety':
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{sobriety: _p26._0, internal: backThatThingUp}),
+						_freakingawesome$drunk_label$DrunkLabel$Model(
+							_elm_lang$core$Native_Utils.update(
+								_p29,
+								{
+									sobriety: _p23._0,
+									dir: _freakingawesome$drunk_label$DrunkLabel$Backward(true)
+								})),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
 				case 'SetBrashness':
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{brashness: _p26._0, internal: backThatThingUp}),
+						_freakingawesome$drunk_label$DrunkLabel$Model(
+							_elm_lang$core$Native_Utils.update(
+								_p29,
+								{
+									brashness: _p23._0,
+									dir: _freakingawesome$drunk_label$DrunkLabel$Backward(true)
+								})),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
 				case 'SetMinWait':
-					var _p27 = _p26._0;
+					var _p24 = _p23._0;
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{
-								minWait: _p27,
-								maxWait: A2(_elm_lang$core$Basics$max, _p27, model.maxWait),
-								internal: backThatThingUp
-							}),
+						_freakingawesome$drunk_label$DrunkLabel$Model(
+							_elm_lang$core$Native_Utils.update(
+								_p29,
+								{
+									minWait: _p24,
+									maxWait: A2(_elm_lang$core$Basics$max, _p24, _p29.maxWait),
+									dir: _freakingawesome$drunk_label$DrunkLabel$Backward(true)
+								})),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
 				case 'SetMaxWait':
-					var _p28 = _p26._0;
+					var _p25 = _p23._0;
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{
-								minWait: A2(_elm_lang$core$Basics$min, model.minWait, _p28),
-								maxWait: _p28,
-								internal: backThatThingUp
-							}),
+						_freakingawesome$drunk_label$DrunkLabel$Model(
+							_elm_lang$core$Native_Utils.update(
+								_p29,
+								{
+									minWait: A2(_elm_lang$core$Basics$min, _p29.minWait, _p25),
+									maxWait: _p25,
+									dir: _freakingawesome$drunk_label$DrunkLabel$Backward(true)
+								})),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
 				case 'ToggleCursor':
-					var internal$ = _freakingawesome$drunk_label$DrunkLabel$InternalModel(
-						_elm_lang$core$Native_Utils.update(
-							_p32,
-							{
-								cursorOn: model.showCursor && _elm_lang$core$Basics$not(_p32.cursorOn)
-							}));
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{internal: internal$}),
+						_freakingawesome$drunk_label$DrunkLabel$Model(
+							_elm_lang$core$Native_Utils.update(
+								_p29,
+								{
+									cursorOn: _p29.showCursor && _elm_lang$core$Basics$not(_p29.cursorOn)
+								})),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
 				case 'ShowCursor':
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{showCursor: _p26._0}),
+						_freakingawesome$drunk_label$DrunkLabel$Model(
+							_elm_lang$core$Native_Utils.update(
+								_p29,
+								{showCursor: _p23._0})),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
 				case 'SetCursorBlinkInterval':
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{cursorBlinkInterval: _p26._0}),
+						_freakingawesome$drunk_label$DrunkLabel$Model(
+							_elm_lang$core$Native_Utils.update(
+								_p29,
+								{cursorBlinkInterval: _p23._0})),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
 				case 'SetTypoPool':
-					var _p29 = _p26._0;
-					var pool$ = _elm_lang$core$Array$isEmpty(_p29) ? _freakingawesome$drunk_label$DrunkLabel$defaultTypoPool : _p29;
+					var _p26 = _p23._0;
+					var pool$ = _elm_lang$core$Array$isEmpty(_p26) ? _freakingawesome$drunk_label$DrunkLabel$defaultTypoPool : _p26;
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{typoPool: pool$, internal: backThatThingUp}),
+						_freakingawesome$drunk_label$DrunkLabel$Model(
+							_elm_lang$core$Native_Utils.update(
+								_p29,
+								{
+									typoPool: pool$,
+									dir: _freakingawesome$drunk_label$DrunkLabel$Backward(true)
+								})),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
 				default:
-					var _p30 = _freakingawesome$drunk_label$DrunkLabel$drunkTyper(model);
-					var nextText = _p30._0;
-					var dir = _p30._1;
-					var nextSeed = _p30._2;
-					var _p31 = A2(
+					var _p27 = _freakingawesome$drunk_label$DrunkLabel$drunkTyper(_p29);
+					var nextText = _p27._0;
+					var dir = _p27._1;
+					var nextSeed = _p27._2;
+					var _p28 = A2(
 						_elm_lang$core$Random$step,
-						A2(_elm_lang$core$Random$float, model.minWait, model.maxWait),
+						A2(_elm_lang$core$Random$float, _p29.minWait, _p29.maxWait),
 						nextSeed);
-					var nextWait = _p31._0;
-					var nextSeed$ = _p31._1;
-					var internal$ = _freakingawesome$drunk_label$DrunkLabel$InternalModel(
-						_elm_lang$core$Native_Utils.update(
-							_p32,
-							{inProcess: nextText, nextSeed: nextSeed$, nextWait: nextWait, dir: dir}));
+					var nextWait = _p28._0;
+					var nextSeed$ = _p28._1;
 					return A2(
 						_elm_lang$core$Platform_Cmd_ops['!'],
-						_elm_lang$core$Native_Utils.update(
-							model,
-							{internal: internal$}),
+						_freakingawesome$drunk_label$DrunkLabel$Model(
+							_elm_lang$core$Native_Utils.update(
+								_p29,
+								{inProcess: nextText, nextSeed: nextSeed$, nextWait: nextWait, dir: dir})),
 						_elm_lang$core$Native_List.fromArray(
 							[]));
 			}
 		});
+	var _freakingawesome$drunk_label$DrunkLabel$main = {
+		main: _elm_lang$html$Html_App$programWithFlags(
+			{init: _freakingawesome$drunk_label$DrunkLabel$init, update: _freakingawesome$drunk_label$DrunkLabel$update, view: _freakingawesome$drunk_label$DrunkLabel$view, subscriptions: _freakingawesome$drunk_label$DrunkLabel$subscriptions}),
+		flags: A2(
+			_elm_lang$core$Json_Decode$andThen,
+			A2(_elm_lang$core$Json_Decode_ops[':='], 'brashness', _elm_lang$core$Json_Decode$float),
+			function (brashness) {
+				return A2(
+					_elm_lang$core$Json_Decode$andThen,
+					A2(_elm_lang$core$Json_Decode_ops[':='], 'cursorBlinkInterval', _elm_lang$core$Json_Decode$float),
+					function (cursorBlinkInterval) {
+						return A2(
+							_elm_lang$core$Json_Decode$andThen,
+							A2(_elm_lang$core$Json_Decode_ops[':='], 'initialSeed', _elm_lang$core$Json_Decode$int),
+							function (initialSeed) {
+								return A2(
+									_elm_lang$core$Json_Decode$andThen,
+									A2(_elm_lang$core$Json_Decode_ops[':='], 'maxWait', _elm_lang$core$Json_Decode$float),
+									function (maxWait) {
+										return A2(
+											_elm_lang$core$Json_Decode$andThen,
+											A2(_elm_lang$core$Json_Decode_ops[':='], 'minWait', _elm_lang$core$Json_Decode$float),
+											function (minWait) {
+												return A2(
+													_elm_lang$core$Json_Decode$andThen,
+													A2(_elm_lang$core$Json_Decode_ops[':='], 'showCursor', _elm_lang$core$Json_Decode$bool),
+													function (showCursor) {
+														return A2(
+															_elm_lang$core$Json_Decode$andThen,
+															A2(_elm_lang$core$Json_Decode_ops[':='], 'sobriety', _elm_lang$core$Json_Decode$float),
+															function (sobriety) {
+																return A2(
+																	_elm_lang$core$Json_Decode$andThen,
+																	A2(_elm_lang$core$Json_Decode_ops[':='], 'typoPool', _elm_lang$core$Json_Decode$string),
+																	function (typoPool) {
+																		return A2(
+																			_elm_lang$core$Json_Decode$andThen,
+																			A2(_elm_lang$core$Json_Decode_ops[':='], 'value', _elm_lang$core$Json_Decode$string),
+																			function (value) {
+																				return _elm_lang$core$Json_Decode$succeed(
+																					{brashness: brashness, cursorBlinkInterval: cursorBlinkInterval, initialSeed: initialSeed, maxWait: maxWait, minWait: minWait, showCursor: showCursor, sobriety: sobriety, typoPool: typoPool, value: value});
+																			});
+																	});
+															});
+													});
+											});
+									});
+							});
+					});
+			})
+	};
 
 	var _javcasas$elm_integer$Data_Integer$sign = function (_p0) {
 		var _p1 = _p0;
@@ -32375,16 +32471,34 @@
 					_elm_lang$html$Html$text('ms)')
 				]));
 	};
-	var _moarwick$elm_webpack_starter$Demo$Model = F3(
-		function (a, b, c) {
-			return {preview: a, tagline: b, showAdvanced: c};
-		});
+	var _moarwick$elm_webpack_starter$Demo$defaultTagline = 'A quick brown fox jumps over the lazy dog';
+	var _moarwick$elm_webpack_starter$Demo$Model = function (a) {
+		return function (b) {
+			return function (c) {
+				return function (d) {
+					return function (e) {
+						return function (f) {
+							return function (g) {
+								return function (h) {
+									return function (i) {
+										return function (j) {
+											return {preview: a, tagline: b, value: c, sobriety: d, brashness: e, minWait: f, maxWait: g, showCursor: h, cursorBlinkInterval: i, showAdvanced: j};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
 	var _moarwick$elm_webpack_starter$Demo$ToggleShowAdvanced = {ctor: 'ToggleShowAdvanced'};
 	var _moarwick$elm_webpack_starter$Demo$SetCursorBlinkInterval = function (a) {
 		return {ctor: 'SetCursorBlinkInterval', _0: a};
 	};
 	var _moarwick$elm_webpack_starter$Demo$viewCursorBlinkInterval = function (model) {
-		return model.preview.showCursor ? A2(
+		return model.showCursor ? A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
 				[
@@ -32401,9 +32515,9 @@
 					_elm_lang$core$Native_List.fromArray(
 						[
 							_elm_lang$html$Html$text('Cursor Blink Interval '),
-							_moarwick$elm_webpack_starter$Demo$showMs(model.preview.cursorBlinkInterval)
+							_moarwick$elm_webpack_starter$Demo$showMs(model.cursorBlinkInterval)
 						])),
-					A5(_moarwick$elm_webpack_starter$Demo$sliderView, 'cursorBlinkInterval', model.preview.cursorBlinkInterval, _moarwick$elm_webpack_starter$Demo$SetCursorBlinkInterval, 10, 1 * _elm_lang$core$Time$second)
+					A5(_moarwick$elm_webpack_starter$Demo$sliderView, 'cursorBlinkInterval', model.cursorBlinkInterval, _moarwick$elm_webpack_starter$Demo$SetCursorBlinkInterval, 10, 1 * _elm_lang$core$Time$second)
 				])) : A2(
 			_elm_lang$html$Html$div,
 			_elm_lang$core$Native_List.fromArray(
@@ -32448,9 +32562,9 @@
 							_elm_lang$core$Native_List.fromArray(
 								[
 									_elm_lang$html$Html$text('Sobriety '),
-									_moarwick$elm_webpack_starter$Demo$showPct(model.preview.sobriety)
+									_moarwick$elm_webpack_starter$Demo$showPct(model.sobriety)
 								])),
-							A5(_moarwick$elm_webpack_starter$Demo$sliderView, 'sobriety', model.preview.sobriety, _moarwick$elm_webpack_starter$Demo$SetSobriety, 0.5, 1)
+							A5(_moarwick$elm_webpack_starter$Demo$sliderView, 'sobriety', model.sobriety, _moarwick$elm_webpack_starter$Demo$SetSobriety, 0.5, 1)
 						])),
 					A2(
 					_elm_lang$html$Html$div,
@@ -32469,9 +32583,9 @@
 							_elm_lang$core$Native_List.fromArray(
 								[
 									_elm_lang$html$Html$text('Brashness '),
-									_moarwick$elm_webpack_starter$Demo$showPct(model.preview.brashness)
+									_moarwick$elm_webpack_starter$Demo$showPct(model.brashness)
 								])),
-							A5(_moarwick$elm_webpack_starter$Demo$sliderView, 'brashness', model.preview.brashness, _moarwick$elm_webpack_starter$Demo$SetBrashness, 0, 1)
+							A5(_moarwick$elm_webpack_starter$Demo$sliderView, 'brashness', model.brashness, _moarwick$elm_webpack_starter$Demo$SetBrashness, 0, 1)
 						])),
 					A2(
 					_elm_lang$html$Html$div,
@@ -32490,9 +32604,9 @@
 							_elm_lang$core$Native_List.fromArray(
 								[
 									_elm_lang$html$Html$text('Min Wait Time '),
-									_moarwick$elm_webpack_starter$Demo$showMs(model.preview.minWait)
+									_moarwick$elm_webpack_starter$Demo$showMs(model.minWait)
 								])),
-							A5(_moarwick$elm_webpack_starter$Demo$sliderView, 'minWaitTime', model.preview.minWait, _moarwick$elm_webpack_starter$Demo$SetMinWait, 0, model.preview.maxWait)
+							A5(_moarwick$elm_webpack_starter$Demo$sliderView, 'minWaitTime', model.minWait, _moarwick$elm_webpack_starter$Demo$SetMinWait, 0, model.maxWait)
 						])),
 					A2(
 					_elm_lang$html$Html$div,
@@ -32511,9 +32625,9 @@
 							_elm_lang$core$Native_List.fromArray(
 								[
 									_elm_lang$html$Html$text('Max Wait Time '),
-									_moarwick$elm_webpack_starter$Demo$showMs(model.preview.maxWait)
+									_moarwick$elm_webpack_starter$Demo$showMs(model.maxWait)
 								])),
-							A5(_moarwick$elm_webpack_starter$Demo$sliderView, 'maxWaitTime', model.preview.maxWait, _moarwick$elm_webpack_starter$Demo$SetMaxWait, model.preview.minWait, 1 * _elm_lang$core$Time$second)
+							A5(_moarwick$elm_webpack_starter$Demo$sliderView, 'maxWaitTime', model.maxWait, _moarwick$elm_webpack_starter$Demo$SetMaxWait, model.minWait, 1 * _elm_lang$core$Time$second)
 						])),
 					A2(
 					_elm_lang$html$Html$div,
@@ -32543,7 +32657,7 @@
 												[
 													A2(_elm_lang$html$Html_Attributes$attribute, 'type', 'checkbox'),
 													_elm_lang$html$Html_Events$onClick(_moarwick$elm_webpack_starter$Demo$ToggleShowCursor),
-													_elm_lang$html$Html_Attributes$checked(model.preview.showCursor)
+													_elm_lang$html$Html_Attributes$checked(model.showCursor)
 												]),
 											_elm_lang$core$Native_List.fromArray(
 												[])),
@@ -32585,25 +32699,22 @@
 		return {ctor: 'PreviewMsg', _0: a};
 	};
 	var _moarwick$elm_webpack_starter$Demo$init = function (seed) {
-		var _p1 = _freakingawesome$drunk_label$DrunkLabel$init(
-			_elm_lang$core$Random$initialSeed(seed + 1));
-		var taglineModel = _p1._0;
-		var taglineCmd = _p1._1;
+		var flags = _freakingawesome$drunk_label$DrunkLabel$defaultFlags;
+		var previewSettings = _elm_lang$core$Native_Utils.update(
+			flags,
+			{initialSeed: seed, value: _moarwick$elm_webpack_starter$Demo$defaultTagline});
+		var _p1 = _freakingawesome$drunk_label$DrunkLabel$init(previewSettings);
+		var preview = _p1._0;
+		var previewCmd = _p1._1;
 		var _p2 = _freakingawesome$drunk_label$DrunkLabel$init(
-			_elm_lang$core$Random$initialSeed(seed));
-		var previewModel = _p2._0;
-		var previewCmd = _p2._1;
+			_elm_lang$core$Native_Utils.update(
+				flags,
+				{initialSeed: seed + 1, value: 'Mistyping as a Service', sobriety: 0.85, brashness: 0.5}));
+		var tagline = _p2._0;
+		var taglineCmd = _p2._1;
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
-			{
-				preview: _elm_lang$core$Native_Utils.update(
-					previewModel,
-					{value: 'A quick brown fox jumps over the lazy dog'}),
-				tagline: _elm_lang$core$Native_Utils.update(
-					taglineModel,
-					{value: 'Mistyping as a Service', sobriety: 0.85, brashness: 0.5}),
-				showAdvanced: true
-			},
+			{preview: preview, tagline: tagline, value: previewSettings.value, sobriety: previewSettings.sobriety, brashness: previewSettings.brashness, minWait: previewSettings.minWait, maxWait: previewSettings.maxWait, showCursor: previewSettings.showCursor, cursorBlinkInterval: previewSettings.cursorBlinkInterval, showAdvanced: true},
 			_elm_lang$core$Native_List.fromArray(
 				[
 					A2(_elm_lang$core$Platform_Cmd$map, _moarwick$elm_webpack_starter$Demo$PreviewMsg, previewCmd),
@@ -32614,28 +32725,12 @@
 		function (msg, model) {
 			update:
 			while (true) {
-				var setPreviewFloat = F3(
-					function (str, $default, submsg) {
-						var fval = function () {
-							var _p3 = _elm_lang$core$String$toFloat(str);
-							if (_p3.ctor === 'Ok') {
-								return _p3._0;
-							} else {
-								return $default;
-							}
-						}();
-						return A2(
-							_moarwick$elm_webpack_starter$Demo$update,
-							_moarwick$elm_webpack_starter$Demo$PreviewMsg(
-								submsg(fval)),
-							model);
-					});
-				var _p4 = msg;
-				switch (_p4.ctor) {
+				var _p3 = msg;
+				switch (_p3.ctor) {
 					case 'PreviewMsg':
-						var _p5 = A2(_freakingawesome$drunk_label$DrunkLabel$update, _p4._0, model.preview);
-						var preview = _p5._0;
-						var cmd$ = _p5._1;
+						var _p4 = A2(_freakingawesome$drunk_label$DrunkLabel$update, _p3._0, model.preview);
+						var preview = _p4._0;
+						var cmd$ = _p4._1;
 						return A2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
 							_elm_lang$core$Native_Utils.update(
@@ -32646,9 +32741,9 @@
 									A2(_elm_lang$core$Platform_Cmd$map, _moarwick$elm_webpack_starter$Demo$PreviewMsg, cmd$)
 								]));
 					case 'TaglineMsg':
-						var _p6 = A2(_freakingawesome$drunk_label$DrunkLabel$update, _p4._0, model.tagline);
-						var tagline = _p6._0;
-						var cmd$ = _p6._1;
+						var _p5 = A2(_freakingawesome$drunk_label$DrunkLabel$update, _p3._0, model.tagline);
+						var tagline = _p5._0;
+						var cmd$ = _p5._1;
 						return A2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
 							_elm_lang$core$Native_Utils.update(
@@ -32659,30 +32754,132 @@
 									A2(_elm_lang$core$Platform_Cmd$map, _moarwick$elm_webpack_starter$Demo$TaglineMsg, cmd$)
 								]));
 					case 'ResetTagline':
-						var _v3 = _moarwick$elm_webpack_starter$Demo$TaglineMsg(
-							_freakingawesome$drunk_label$DrunkLabel$SetValue(model.tagline.value)),
-							_v4 = model;
-						msg = _v3;
-						model = _v4;
+						var _v2 = _moarwick$elm_webpack_starter$Demo$TaglineMsg(
+							_freakingawesome$drunk_label$DrunkLabel$SetValue(_moarwick$elm_webpack_starter$Demo$defaultTagline)),
+							_v3 = model;
+						msg = _v2;
+						model = _v3;
 						continue update;
 					case 'SetSobriety':
-						return A3(setPreviewFloat, _p4._0, model.preview.sobriety, _freakingawesome$drunk_label$DrunkLabel$SetSobriety);
+						return A2(
+							_ccapndave$elm_update_extra$Update_Extra_Infix_ops[':>'],
+							A2(
+								_elm_lang$core$Platform_Cmd_ops['!'],
+								_elm_lang$core$Native_Utils.update(
+									model,
+									{
+										sobriety: A2(
+											_elm_lang$core$Result$withDefault,
+											model.sobriety,
+											_elm_lang$core$String$toFloat(_p3._0))
+									}),
+								_elm_lang$core$Native_List.fromArray(
+									[])),
+							function (m) {
+								return A2(
+									_moarwick$elm_webpack_starter$Demo$update,
+									_moarwick$elm_webpack_starter$Demo$PreviewMsg(
+										_freakingawesome$drunk_label$DrunkLabel$SetSobriety(m.sobriety)),
+									m);
+							});
 					case 'SetBrashness':
-						return A3(setPreviewFloat, _p4._0, model.preview.brashness, _freakingawesome$drunk_label$DrunkLabel$SetBrashness);
+						return A2(
+							_ccapndave$elm_update_extra$Update_Extra_Infix_ops[':>'],
+							A2(
+								_elm_lang$core$Platform_Cmd_ops['!'],
+								_elm_lang$core$Native_Utils.update(
+									model,
+									{
+										brashness: A2(
+											_elm_lang$core$Result$withDefault,
+											model.brashness,
+											_elm_lang$core$String$toFloat(_p3._0))
+									}),
+								_elm_lang$core$Native_List.fromArray(
+									[])),
+							function (m) {
+								return A2(
+									_moarwick$elm_webpack_starter$Demo$update,
+									_moarwick$elm_webpack_starter$Demo$PreviewMsg(
+										_freakingawesome$drunk_label$DrunkLabel$SetBrashness(m.brashness)),
+									m);
+							});
 					case 'SetMinWait':
-						return A3(setPreviewFloat, _p4._0, model.preview.minWait, _freakingawesome$drunk_label$DrunkLabel$SetMinWait);
+						return A2(
+							_ccapndave$elm_update_extra$Update_Extra_Infix_ops[':>'],
+							A2(
+								_elm_lang$core$Platform_Cmd_ops['!'],
+								_elm_lang$core$Native_Utils.update(
+									model,
+									{
+										minWait: A2(
+											_elm_lang$core$Result$withDefault,
+											model.minWait,
+											_elm_lang$core$String$toFloat(_p3._0))
+									}),
+								_elm_lang$core$Native_List.fromArray(
+									[])),
+							function (m) {
+								return A2(
+									_moarwick$elm_webpack_starter$Demo$update,
+									_moarwick$elm_webpack_starter$Demo$PreviewMsg(
+										_freakingawesome$drunk_label$DrunkLabel$SetMinWait(m.minWait)),
+									m);
+							});
 					case 'SetMaxWait':
-						return A3(setPreviewFloat, _p4._0, model.preview.maxWait, _freakingawesome$drunk_label$DrunkLabel$SetMaxWait);
+						return A2(
+							_ccapndave$elm_update_extra$Update_Extra_Infix_ops[':>'],
+							A2(
+								_elm_lang$core$Platform_Cmd_ops['!'],
+								_elm_lang$core$Native_Utils.update(
+									model,
+									{
+										maxWait: A2(
+											_elm_lang$core$Result$withDefault,
+											model.maxWait,
+											_elm_lang$core$String$toFloat(_p3._0))
+									}),
+								_elm_lang$core$Native_List.fromArray(
+									[])),
+							function (m) {
+								return A2(
+									_moarwick$elm_webpack_starter$Demo$update,
+									_moarwick$elm_webpack_starter$Demo$PreviewMsg(
+										_freakingawesome$drunk_label$DrunkLabel$SetMaxWait(m.maxWait)),
+									m);
+							});
 					case 'ToggleShowCursor':
-						var _v5 = _moarwick$elm_webpack_starter$Demo$PreviewMsg(
-							_freakingawesome$drunk_label$DrunkLabel$ShowCursor(
-								_elm_lang$core$Basics$not(model.preview.showCursor))),
-							_v6 = model;
-						msg = _v5;
-						model = _v6;
+						var showCursor = _elm_lang$core$Basics$not(model.showCursor);
+						var _v4 = _moarwick$elm_webpack_starter$Demo$PreviewMsg(
+							_freakingawesome$drunk_label$DrunkLabel$ShowCursor(showCursor)),
+							_v5 = _elm_lang$core$Native_Utils.update(
+							model,
+							{showCursor: showCursor});
+						msg = _v4;
+						model = _v5;
 						continue update;
 					case 'SetCursorBlinkInterval':
-						return A3(setPreviewFloat, _p4._0, model.preview.cursorBlinkInterval, _freakingawesome$drunk_label$DrunkLabel$SetCursorBlinkInterval);
+						return A2(
+							_ccapndave$elm_update_extra$Update_Extra_Infix_ops[':>'],
+							A2(
+								_elm_lang$core$Platform_Cmd_ops['!'],
+								_elm_lang$core$Native_Utils.update(
+									model,
+									{
+										cursorBlinkInterval: A2(
+											_elm_lang$core$Result$withDefault,
+											model.cursorBlinkInterval,
+											_elm_lang$core$String$toFloat(_p3._0))
+									}),
+								_elm_lang$core$Native_List.fromArray(
+									[])),
+							function (m) {
+								return A2(
+									_moarwick$elm_webpack_starter$Demo$update,
+									_moarwick$elm_webpack_starter$Demo$PreviewMsg(
+										_freakingawesome$drunk_label$DrunkLabel$SetCursorBlinkInterval(m.cursorBlinkInterval)),
+									m);
+							});
 					default:
 						return A2(
 							_elm_lang$core$Platform_Cmd_ops['!'],
@@ -32870,14 +33067,14 @@
 																	A2(_elm_lang$html$Html_Attributes$attribute, 'cols', '80'),
 																	A2(_elm_lang$html$Html_Attributes$attribute, 'id', 'input'),
 																	_elm_lang$html$Html_Events$onInput(
-																	function (_p7) {
+																	function (_p6) {
 																		return _moarwick$elm_webpack_starter$Demo$PreviewMsg(
-																			_freakingawesome$drunk_label$DrunkLabel$SetValue(_p7));
+																			_freakingawesome$drunk_label$DrunkLabel$SetValue(_p6));
 																	})
 																]),
 															_elm_lang$core$Native_List.fromArray(
 																[
-																	_elm_lang$html$Html$text(model.preview.value)
+																	_elm_lang$html$Html$text(model.value)
 																]))
 														])),
 													_moarwick$elm_webpack_starter$Demo$viewAdvanced(model)
