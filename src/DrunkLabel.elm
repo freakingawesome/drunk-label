@@ -205,14 +205,14 @@ update msg model' =
           in Model { model | typoPool = pool', dir = Backward True } ! []
         NextKey ->
           let
-            (nextText, dir, nextSeed) = drunkTyper model
-            (nextWait, nextSeed') = Random.step (Random.float model.minWait model.maxWait) nextSeed
+            (chance, nextSeed) = Random.step (chanceGenerator model) model.nextSeed
+            (nextText, dir) = drunkTyper model chance
           in
             Model
               { model
               | inProcess = nextText
-              , nextSeed = nextSeed'
-              , nextWait = nextWait
+              , nextSeed = nextSeed
+              , nextWait = chance.nextWait
               , dir = dir
               } ! []
 
@@ -283,53 +283,59 @@ type FullZipItem a b
   | Second b
   | Both a b
 
-drunkTyper : InternalModel -> (String, Direction, Random.Seed)
-drunkTyper model =
+type alias Chance =
+  { nextWait : Time
+  , accuracy : Float
+  , typo : Char
+  , dirIfTypos : Direction
+  }
+
+chanceGenerator : InternalModel -> Random.Generator Chance
+chanceGenerator model =
+  Random.map4 Chance
+    (Random.float model.minWait model.maxWait)
+    (Random.float 0 1)
+    (Random.map (Maybe.withDefault 'X' << flip Array.get model.typoPool) (Random.int 0 <| (Array.length model.typoPool) - 1))
+    (Random.map (\f -> if f > model.brashness then Backward False else Forward) (Random.float 0 1))
+
+drunkTyper : InternalModel -> Chance -> (String, Direction)
+drunkTyper model chance =
   let
     typedKeys = toTypedKeys model.value model.inProcess
-    numWrong =
-      length
-        <| filter (\x ->
-          case x of
-            Wrong _ _ -> True
-            _ -> False
-          ) typedKeys
-    (drunked, nextSeed') =
+    wrongs x =
+      case x of
+        Wrong _ _ -> True
+        _ -> False
+    numWrong = length <| filter wrongs typedKeys
+    drunked =
       case model.dir of
         Forward ->
-          appendNextLetter typedKeys model
+          appendNextLetter typedKeys model chance
         Backward False ->
           Maybe.withDefault [] (List.Extra.init (String.toList model.inProcess))
             |> String.fromList
-            |> flip (,) model.nextSeed
         Backward True ->
-          (String.slice 0 -2 model.inProcess, model.nextSeed)
-    (dir, nextSeed'') =
+          String.slice 0 -2 model.inProcess
+    dir =
         case model.dir of
           Forward ->
             if numWrong == 0
-              then (Forward, nextSeed')
-              else Random.step (Random.map (\f -> if f > model.brashness then Backward False else Forward) (Random.float 0 1)) nextSeed'
+              then Forward
+              else chance.dirIfTypos
           Backward False ->
             if numWrong == 0
-              then (Forward, nextSeed')
-              else (Backward False, nextSeed')
+              then Forward
+              else Backward False
           Backward True ->
             if String.length model.inProcess == 0
-              then (Forward, nextSeed')
-              else (Backward True, nextSeed')
+              then Forward
+              else Backward True
   in
-    (drunked, dir, nextSeed'')
+    (drunked, dir)
 
-appendNextLetter : List TypedKey -> InternalModel -> (String, Random.Seed)
-appendNextLetter typedKeys model =
+appendNextLetter : List TypedKey -> InternalModel -> Chance -> String
+appendNextLetter typedKeys model chance =
   let
-    (accuracy, nextSeed) =
-      Random.step (Random.float 0 1) model.nextSeed
-    (randChar, nextSeed') =
-      Random.step
-        (Random.map (Maybe.withDefault 'X' << flip Array.get model.typoPool) (Random.int 0 <| (Array.length model.typoPool) - 1))
-        nextSeed
     filterTyped x =
       case x of
         Matched c -> Just c
@@ -343,14 +349,13 @@ appendNextLetter typedKeys model =
     nextLetter =
       case head <| skipTyped typedKeys of
         Just (Untyped c) ->
-          if accuracy > model.sobriety
-            then [randChar]
+          if chance.accuracy > model.sobriety
+            then [chance.typo]
             else [c]
         _ -> []
   in
     filterMap filterTyped typedKeys ++ nextLetter
       |> String.fromList
-      |> flip (,) nextSeed
 
 toTypedKeys : String -> String -> List TypedKey
 toTypedKeys expected current =
