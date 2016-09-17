@@ -3,6 +3,7 @@ module DrunkLabel exposing (
   Flags,
   defaultFlags,
   defaultTypoPool,
+  defaultCursor,
   Msg
     ( SetValue
     , SetSobriety
@@ -10,6 +11,7 @@ module DrunkLabel exposing (
     , SetMinWait
     , SetMaxWait
     , ShowCursor
+    , SetCursor
     , SetCursorBlinkInterval
     , SetTypoPool
     ),
@@ -22,7 +24,7 @@ module DrunkLabel exposing (
 {-| Mistyping as a service
 
 # Model
-@docs Flags, defaultFlags, defaultTypoPool, Model
+@docs Flags, defaultFlags, defaultTypoPool, defaultCursor, Model
 
 # Customization
 @docs Msg
@@ -56,6 +58,7 @@ import Array exposing (Array)
       minWait: 30,
       maxWait: 200,
       showCursor: true,
+      cursor: "", // defaults to char code 9608
       cursorBlinkInterval: 500,
       typoPool: "", // defaults to ascii 48-122
       initialSeed: Date.now()
@@ -87,6 +90,7 @@ type alias InternalModel =
   , minWait : Time
   , maxWait : Time
   , showCursor : Bool
+  , cursor : String
   , cursorBlinkInterval : Time
   , typoPool : Array Char
   , inProcess : String
@@ -104,6 +108,7 @@ type alias Flags =
   , minWait : Time
   , maxWait : Time
   , showCursor : Bool
+  , cursor : String
   , cursorBlinkInterval : Time
   , typoPool : String
   , initialSeed : Int
@@ -118,6 +123,7 @@ defaultFlags =
   , minWait = 30 * millisecond
   , maxWait = 200 * millisecond
   , showCursor = True
+  , cursor = defaultCursor
   , cursorBlinkInterval = 500 * millisecond
   , typoPool = String.fromList <| Array.toList defaultTypoPool
   , initialSeed = 0
@@ -137,6 +143,10 @@ init flags = Model
   , minWait = max 0 flags.minWait
   , maxWait = max flags.minWait <| max 0 flags.maxWait
   , showCursor = flags.showCursor
+  , cursor =
+      case flags.cursor of
+        "" -> defaultCursor
+        _ -> flags.cursor
   , cursorBlinkInterval = max 0 flags.cursorBlinkInterval
   , typoPool =
     case flags.typoPool of
@@ -163,6 +173,7 @@ typist is to realize they made a mistake. It expects a value between 0 and 1.
 * `SetMinWait` changes the mininum delay between each key press.
 * `SetMaxWait` changes the maximum delay between each key press.
 * `ShowCursor` changes whether the cursor is visible.
+* `SetCursor` changes the string which acts as the cursor.
 * `SetCursorBlinkInterval` changes how fast the cursor blinks
 * `SetTypoPool` changes the pool of characters from which typos are pulled
 -}
@@ -173,6 +184,7 @@ type Msg
   | SetMinWait Time
   | SetMaxWait Time
   | ShowCursor Bool
+  | SetCursor String
   | SetCursorBlinkInterval Time
   | SetTypoPool (Array Char)
   | ToggleCursor
@@ -198,6 +210,8 @@ update msg model' =
           Model { model | cursorOn = model.showCursor && not model.cursorOn  } ! []
         ShowCursor show ->
           Model { model | showCursor = show } ! []
+        SetCursor cursor ->
+          Model { model | cursor = if cursor == "" then defaultCursor else cursor } ! []
         SetCursorBlinkInterval val ->
           Model { model | cursorBlinkInterval = val } ! []
         SetTypoPool pool ->
@@ -250,14 +264,15 @@ view model' =
       let
         cursor =
           case (model.showCursor, model.cursorOn) of
-            (True, True) -> cursorChar
+            (True, True) -> model.cursor
             (True, False) -> nbspChar
             _ -> ""
       in
         text <| model.inProcess ++ cursor
 
-cursorChar : String
-cursorChar =
+{-| The default cursor character, char code 9608 -}
+defaultCursor : String
+defaultCursor =
   String.fromChar <| Char.fromCode 9608
 
 nbspChar : String
