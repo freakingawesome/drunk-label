@@ -192,83 +192,77 @@ type Msg
 
 {-| Wiring for the `update` function -}
 update : Msg -> Model -> (Model, Cmd Msg)
-update msg model' =
-  case model' of
-    Model model ->
-      case msg of
-        SetValue val ->
-          Model { model | value = val, dir = Backward True } ! []
-        SetSobriety val ->
-          Model { model | sobriety = val, dir = Backward True } ! []
-        SetBrashness val ->
-          Model { model | brashness = val, dir = Backward True } ! []
-        SetMinWait min ->
-          Model { model | minWait = min, maxWait = max min model.maxWait, dir = Backward True } ! []
-        SetMaxWait max ->
-          Model { model | minWait = min model.minWait max, maxWait = max, dir = Backward True } ! []
-        ToggleCursor ->
-          Model { model | cursorOn = model.showCursor && not model.cursorOn  } ! []
-        ShowCursor show ->
-          Model { model | showCursor = show } ! []
-        SetCursor cursor ->
-          Model { model | cursor = if cursor == "" then defaultCursor else cursor } ! []
-        SetCursorBlinkInterval val ->
-          Model { model | cursorBlinkInterval = val } ! []
-        SetTypoPool pool ->
-          let pool' = if Array.isEmpty pool then defaultTypoPool else pool
-          in Model { model | typoPool = pool', dir = Backward True } ! []
-        NextKey ->
-          let
-            (chance, nextSeed) = Random.step (chanceGenerator model) model.nextSeed
-            (nextText, dir) = drunkTyper model chance
-          in
-            Model
-              { model
-              | inProcess = nextText
-              , nextSeed = nextSeed
-              , nextWait = chance.nextWait
-              , dir = dir
-              } ! []
+update msg (Model model) =
+  case msg of
+    SetValue val ->
+      Model { model | value = val, dir = Backward True } ! []
+    SetSobriety val ->
+      Model { model | sobriety = val, dir = Backward True } ! []
+    SetBrashness val ->
+      Model { model | brashness = val, dir = Backward True } ! []
+    SetMinWait min ->
+      Model { model | minWait = min, maxWait = max min model.maxWait, dir = Backward True } ! []
+    SetMaxWait max ->
+      Model { model | minWait = min model.minWait max, maxWait = max, dir = Backward True } ! []
+    ToggleCursor ->
+      Model { model | cursorOn = model.showCursor && not model.cursorOn  } ! []
+    ShowCursor show ->
+      Model { model | showCursor = show } ! []
+    SetCursor cursor ->
+      Model { model | cursor = if cursor == "" then defaultCursor else cursor } ! []
+    SetCursorBlinkInterval val ->
+      Model { model | cursorBlinkInterval = val } ! []
+    SetTypoPool pool ->
+      let pool' = if Array.isEmpty pool then defaultTypoPool else pool
+      in Model { model | typoPool = pool', dir = Backward True } ! []
+    NextKey ->
+      let
+        (chance, nextSeed) = Random.step (chanceGenerator model) model.nextSeed
+        (nextText, dir) = drunkTyper model chance
+      in
+        Model
+          { model
+          | inProcess = nextText
+          , nextSeed = nextSeed
+          , nextWait = chance.nextWait
+          , dir = dir
+          } ! []
 
 
 -- SUBSCRIPTIONS
 
 {-| Wiring for the `subscriptions` function -}
 subscriptions : Model -> Sub Msg
-subscriptions model' =
-  case model' of
-    Model model ->
-      let
-        typing =
-          case model.dir of
-            Backward True -> Time.every (min model.maxWait <| 50 * millisecond) (always NextKey)
-            _ ->
-              if model.value == model.inProcess
-                then Sub.none
-                else Time.every model.nextWait (always NextKey)
-        cursorBlinking =
-          if model.showCursor
-            then Time.every model.cursorBlinkInterval (always ToggleCursor)
-            else Sub.none
-      in
-        Sub.batch [ typing, cursorBlinking ]
+subscriptions (Model model) =
+  let
+    typing =
+      case model.dir of
+        Backward True -> Time.every (min model.maxWait <| 50 * millisecond) (always NextKey)
+        _ ->
+          if model.value == model.inProcess
+            then Sub.none
+            else Time.every model.nextWait (always NextKey)
+    cursorBlinking =
+      if model.showCursor
+        then Time.every model.cursorBlinkInterval (always ToggleCursor)
+        else Sub.none
+  in
+    Sub.batch [ typing, cursorBlinking ]
 
 
 -- VIEW
 
 {-| Wiring for the `view` function -}
 view : Model -> Html Msg
-view model' =
-  case model' of
-    Model model ->
-      let
-        cursor =
-          case (model.showCursor, model.cursorOn) of
-            (True, True) -> model.cursor
-            (True, False) -> nbspChar
-            _ -> ""
-      in
-        text <| model.inProcess ++ cursor
+view (Model model) =
+  let
+    cursor =
+      case (model.showCursor, model.cursorOn) of
+        (True, True) -> model.cursor
+        (True, False) -> nbspChar
+        _ -> ""
+  in
+    text <| model.inProcess ++ cursor
 
 {-| The default cursor character, char code 9608 -}
 defaultCursor : String
